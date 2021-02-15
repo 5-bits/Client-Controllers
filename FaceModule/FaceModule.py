@@ -1,35 +1,55 @@
 import cv2
-cv2.namedWindow("Recogniser")
-vc = cv2.VideoCapture(0)
 
-b = None
-bs = None
-center = None
+class FaceModule :
 
-if vc.isOpened(): # try to get the first frame
-    rval, b = vc.read()
-    bs = b.shape
-    center = (bs[1]//2, bs[0]//2)
-else:
-    rval = False
+    def __init__(self):
+        cv2.namedWindow("Camera")
+        self.vc = None
+        self.rval = None
+        self.b = None
+        self.bs = None
+        self.center = None
+        print("Facemodule initialised")
 
-while rval:
-    rval, b = vc.read()
-    bill_gray=cv2.cvtColor(b,cv2.COLOR_BGR2GRAY)
-    face= cv2.CascadeClassifier('haarcascade_frontalface_default.xml').detectMultiScale(bill_gray,scaleFactor=1.1,minNeighbors=5)
-    cv2.circle(b, center, 8, (0,255,0), -1)
-    for (x,y,w,h) in face:
-        cv2.rectangle(b,(x,y),(x+w,y+h),(0,255,0),5)
-        cv2.circle(b, (x+w//2, y+h//2), 3, (0,255,0), -1)
-        cv2.line(b, (x+w//2, y+h//2), center, (255,0,0), 2)
+    def activate(self):
+        print("Activating camera...")
+        self.vc = cv2.VideoCapture(0)
+        if self.vc.isOpened(): # try to get the first frame
+            print("Camera activated")
+            self.rval, self.b = self.vc.read()
+            self.bs = self.b.shape
+            self.center = (self.bs[1]//2, self.bs[0]//2)
+        else:
+            self.rval = False
 
-    cv2.imshow("Recogniser", b)
-    rval, b = vc.read()
-    key = cv2.waitKey(20)
-    if key == 27: # exit on ESC
-        break
+        while self.rval:
+            self.rval, self.b = self.vc.read()
+            gray=cv2.cvtColor(self.b,cv2.COLOR_BGR2GRAY)
+            face= cv2\
+                .CascadeClassifier('haarcascade_frontalface_default.xml')\
+                .detectMultiScale(gray,scaleFactor=1.1,minNeighbors=10)
 
-# print(b.shape)
+            cv2.circle(self.b, self.center, 8, (0,255,0), -1)
+            
+            for (x,y,w,h) in face:
+                cv2.rectangle(self.b,(x,y),(x+w,y+h),(0,255,0),5)
+                cv2.circle(self.b, (x+w//2, y+h//2), 3, (0,255,0), -1)
+                cv2.line(self.b, (x+w//2, y+h//2), self.center, (255,0,0), 2)
+            cv2.imshow("Camera", self.b)
+            rval, b = self.vc.read()
+            key = cv2.waitKey(20)
+            if key == 27: # exit on ESC
+                break
+        
+        print("Deactivating camera...")
+        self.deactivate()
 
-cv2.destroyWindow("Recogniser")
-vc.release()
+    
+    def deactivate(self):
+        cv2.destroyWindow("Camera")
+        self.vc.release()
+        print("Camera Deactivated")
+
+if __name__=='__main__':
+    f = FaceModule()
+    f.activate()
