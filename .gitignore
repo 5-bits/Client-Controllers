@@ -2,3 +2,5 @@ __pycache__
 .virtual_documents
 .ipynb_checkpoints
 *.swp
+
+MedibotVenv
